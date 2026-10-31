@@ -1,2 +1,4 @@
-export { default as userService } from "./userService.js";
-export { default as messageService } from "./messageService.js";
+export { default as personService } from "./personService.js";
+export { default as educationService } from "./educationService.js";
+export { default as experienceService } from "./experienceService.js";
+export { default as projectService } from "./projectService.js";

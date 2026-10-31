@@ -1,3 +1,4 @@
-export { default as userController } from "./userController.js";
-export { default as messageController } from "./messageController.js";
-export { default as sessionController } from "./sessionController.js";
+export { default as personController } from "./personController.js";
+export { default as educationController } from "./educationController.js";
+export { default as experienceController } from "./experienceController.js";
+export { default as projectController } from "./projectController.js";

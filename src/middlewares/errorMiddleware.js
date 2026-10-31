@@ -1,30 +1,52 @@
 const errorMiddleware = (err, req, res, next) => {
-  // Erros de validação do Sequelize (ex.: campo obrigatório vazio)
+  // O stack só é enviado em desenvolvimento
+  const withStack =
+    process.env.NODE_ENV === "development" ? { stack: err.stack } : {};
+
+  // Validação do Sequelize (campo obrigatório vazio, e-mail inválido etc.)
   if (err.name === "SequelizeValidationError") {
     return res.status(400).send({
       status: "fail",
       message: err.errors.map((e) => e.message).join(", "),
-      ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+      ...withStack,
     });
   }
 
-  // Violação de valor único (ex.: username ou email duplicado)
+  // Valor único duplicado (ex.: e-mail já cadastrado)
   if (err.name === "SequelizeUniqueConstraintError") {
     return res.status(409).send({
       status: "fail",
       message: `Já existe um registro com esse valor: ${err.errors
         .map((e) => e.path)
         .join(", ")}`,
-      ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+      ...withStack,
     });
   }
 
-  // Erros previstos de negócio (lançados com "throw new AppError(...)")
+  // Id em formato inválido (ex.: UUID mal formado)
+  if (err.name === "SequelizeDatabaseError" && err.parent?.code === "22P02") {
+    return res.status(400).send({
+      status: "fail",
+      message: "Valor inválido enviado na requisição.",
+      ...withStack,
+    });
+  }
+
+  // JSON mal formado no corpo da requisição
+  if (err.type === "entity.parse.failed") {
+    return res.status(400).send({
+      status: "fail",
+      message: "JSON inválido no corpo da requisição.",
+      ...withStack,
+    });
+  }
+
+  // Erros previstos (lançados com "throw new AppError(...)")
   if (err.isOperational) {
     return res.status(err.statusCode).send({
       status: err.status,
       message: err.message,
-      ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+      ...withStack,
     });
   }
 
@@ -33,7 +55,7 @@ const errorMiddleware = (err, req, res, next) => {
   return res.status(500).send({
     status: "error",
     message: "Algo deu errado no servidor",
-    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+    ...withStack,
   });
 };
 

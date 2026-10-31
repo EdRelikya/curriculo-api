@@ -1,3 +1,4 @@
-export { default as session } from "./session.js";
-export { default as user } from "./user.js";
-export { default as message } from "./message.js";
+export { default as person } from "./person.js";
+export { default as education } from "./education.js";
+export { default as experience } from "./experience.js";
+export { default as project } from "./project.js";
